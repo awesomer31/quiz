@@ -33,9 +33,21 @@ wss.on("connection",ws=>{
       L.clients.add(ws);
       send(ws,{t:"joined",code:L.code,slot});
       if(L.S){if(slot)toAll(L);else send(ws,{t:"state",S:L.S})}
+    }else if(m.t==="kick"&&isHost&&L){
+      const k=+m.slot,e=k>=1?L.slots[k]:null;
+      if(e){
+        send(e.ws,{t:"kicked"});
+        L.clients.delete(e.ws);
+        delete L.slots[k];
+        try{e.ws.close()}catch(x){}
+        if(L.S&&L.S.players&&L.S.players[k]){L.S.players[k].name="Spieler "+k;toAll(L)}
+      }
     }else if(m.t==="buzz"&&slot&&L&&L.S){
-      const S=L.S;
-      if(S.open&&!S.buzzed&&!S.open.scored){S.buzzed=true;S.cur=slot;S.open.none=0;toAll(L)}
+      const S=L.S,o=S.open;
+      // Buzzern erst nach einer falschen Antwort, und nur einmal pro Frage und Spieler
+      if(L.slots[slot]&&L.slots[slot].ws===ws&&o&&o.wrong&&!S.buzzed&&!o.scored&&!o.ans&&(o.tried||[]).indexOf(slot)<0){
+        S.buzzed=true;S.cur=slot;o.none=0;o.run=1;o.tt=10;o.t=10;o.rs=(o.rs||0)+1;o.to=0;toAll(L)
+      }
     }
   });
   ws.on("close",()=>{if(L){L.clients.delete(ws);if(isHost&&L.host===ws)L.host=null}});
