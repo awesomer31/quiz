@@ -172,7 +172,7 @@ dialog.low{animation:alarm 1s ease-in-out infinite}
   <h1>Game Show · <span id="rnd"></span></h1>
   <div class="pill" id="turnPill"></div>
   <div id="lobbyinfo" style="font-weight:700;font-size:14px"></div>
-  <div class="btns"><button id="pvBtn" style="display:none"></button><span class="hostonly btns"><button id="npBtn"></button><button id="editBtn">Bearbeiten</button><button id="rBtn">Runde wechseln</button><button id="resetBtn">Felder zurücksetzen</button></span></div>
+  <div class="btns"><button id="pvBtn" style="display:none"></button><span class="hostonly btns"><button id="npBtn"></button><button id="editBtn">Bearbeiten</button><button id="rBtn">Runde wechseln</button><button id="nlBtn">Neue Lobby</button><button id="resetBtn">Felder zurücksetzen</button></span></div>
 </header>
 <main id="board" class="board"></main>
 <section class="buzzwrap"><button id="buzz" class="buzz"><b style="font-size:38px;line-height:1">🦆</b><span>BUZZ</span></button></section>
@@ -211,7 +211,7 @@ function blankQ(){var q=blankQ0();DD.forEach(function(D,r){D.forEach(function(c,
 function blankS(){var z=blankS0();DD.forEach(function(D,r){D.forEach(function(c,ci){z.names[r][ci]=c.n})});return z}
 try{Q=JSON.parse(localStorage.getItem(LK+"q"))||blankQ();S=JSON.parse(localStorage.getItem(LK+"s"))||blankS()}catch(e){Q=blankQ();S=blankS()}
 var board=$("board"),dlg=$("dlg"),camsEl=$("cams"),buzzBtn=$("buzz");
-var kicked=false,lastH="",pv=null,AC=null,tzT,lastRs=null,tEnd=0;
+var kickT,kicked=false,lastH="",pv=null,AC=null,tzT,lastRs=null,tEnd=0;
 var TMH='<div class="tm off" id="tm"><svg viewBox="0 0 100 100"><circle class="trk" cx="50" cy="50" r="44"/><circle class="prg" id="tmc" cx="50" cy="50" r="44" transform="rotate(-90 50 50)"/></svg><b id="tmn"></b><i>🦆</i></div>';
 var WR=["Autsch! 💥","Daneben! 🙈","Leider nein 😬","Knapp… aber nein 🫠","Uff. 🤦"],RT=["Richtig! 🎉","Sauber! ✨","Stark! 💪","Genau! 🧠","Boom! 🎯"];
 var tz=document.createElement("div");tz.className="tz";
@@ -370,7 +370,7 @@ camsEl.addEventListener("click",function(e){
   var c=e.target.closest(".cam");if(!c||+c.dataset.i===0)return;
   S.cur=+c.dataset.i;retime();commit();
 });
-$("adj").addEventListener("click",function(e){var b=e.target.closest("button");if(!b||!ctl())return;if(b.dataset.k){var kp=S.players[+b.dataset.p];if(kp&&confirm(kp.name+" aus der Lobby kicken?")&&ws&&ws.readyState===1)ws.send(JSON.stringify({t:"kick",slot:+b.dataset.p}));return}
+$("adj").addEventListener("click",function(e){var b=e.target.closest("button");if(!b||!ctl())return;if(b.dataset.k){var kp=S.players[+b.dataset.p];if(kp&&confirm(kp.name+" aus der Lobby kicken?")&&ws&&ws.readyState===1){ws.send(JSON.stringify({t:"kick",slot:+b.dataset.p}));clearTimeout(kickT);kickT=setTimeout(function(){alert("Der Server hat nicht geantwortet. Hast du die neue server.js hochgeladen und den Server neu gestartet?")},2000)}return}
   if(b.dataset.t){S.cur=+b.dataset.p;retime()}else S.players[+b.dataset.p].score+=+b.dataset.v;commit()});
 function doBuzz(){
   if(!canBuzz())return;
@@ -390,6 +390,14 @@ document.addEventListener("keydown",function(e){
 $("pvBtn").onclick=function(){preview=!preview;try{sessionStorage.setItem("gs3pv",preview?"1":"0")}catch(e){}render()};
 $("editBtn").onclick=function(){edit=!edit;this.classList.toggle("on",edit);this.textContent=edit?"Fertig bearbeitet":"Bearbeiten";render()};
 $("npBtn").onclick=function(){var n=S.np||4;S.np=n===4?3:n===3?2:4;if(S.cur>S.np)S.cur=1;commit()};
+$("nlBtn").onclick=function(){
+  if(!ctl()||!ws||ws.readyState!==1)return;
+  if(!confirm("Neue Lobby mit neuem Code öffnen? Alle Spieler fliegen raus und alles startet bei null."))return;
+  S.used=PTS.map(function(){return five(function(){return[0,0,0,0]})});
+  S.round=0;S.open=null;S.announce=null;S.buzzed=false;S.cur=1;
+  S.players.forEach(function(p,i){p.score=0;if(i)p.name="Spieler "+i});
+  ws.send(JSON.stringify({t:"reset"}));commit();
+};
 $("rBtn").onclick=function(){S.round=(S.round+1)%PTS.length;commit()};
 $("resetBtn").onclick=function(){S.used=PTS.map(function(){return five(function(){return[0,0,0,0]})});S.round=0;S.open=null;S.announce=null;S.buzzed=false;commit()};
 render();
@@ -401,8 +409,9 @@ function connect(msg){
   ws.onopen=function(){ws.send(JSON.stringify(msg));setInterval(function(){if(ws&&ws.readyState===1)ws.send('{"t":"ping"}')},30000)};
   ws.onmessage=function(e){
     var m=JSON.parse(e.data);
-    if(m.t==="err"){alert(m.msg);return}
-    if(m.t==="kicked"){kicked=true;myslot=0;$("join").style.display="flex";$("lobbyinfo").textContent="Vom Moderator entfernt";render();alert("Du wurdest vom Moderator aus der Lobby entfernt.");return}
+    if(m.t==="kickok"){clearTimeout(kickT);return}
+    if(m.t==="err"){clearTimeout(kickT);alert(m.msg);return}
+    if(m.t==="kicked"){kicked=true;myslot=0;$("join").style.display="flex";$("lobbyinfo").textContent="Vom Moderator entfernt";render();alert(m.closed?"Der Moderator hat eine neue Lobby geöffnet. Bitte mit dem neuen Code beitreten.":"Du wurdest vom Moderator aus der Lobby entfernt.");return}
     if(m.t==="hosted"){code=m.code;try{localStorage.setItem("gs3host",JSON.stringify({code:m.code,token:m.token}))}catch(x){}host=true;$("lobbyinfo").innerHTML='Lobby-Code: <b>'+m.code+'</b> <button id="cpBtn">Link kopieren</button>';
       $("cpBtn").onclick=function(){var l=location.origin+"/?c="+m.code,btn=this;function ok(){btn.textContent="Kopiert ✓";setTimeout(function(){btn.textContent="Link kopieren"},1500)}if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(l).then(ok,function(){prompt("Link:",l)});else prompt("Link:",l)};push();render()}
     if(m.t==="joined"){myslot=m.slot;$("join").style.display="none";$("lobbyinfo").textContent="Lobby "+m.code+(m.slot?" · du bist Spieler "+m.slot:" · Zuschauer");render()}

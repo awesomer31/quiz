@@ -41,7 +41,16 @@ wss.on("connection",ws=>{
         delete L.slots[k];
         try{e.ws.close()}catch(x){}
         if(L.S&&L.S.players&&L.S.players[k]){L.S.players[k].name="Spieler "+k;toAll(L)}
-      }
+        send(ws,{t:"kickok"});
+      }else send(ws,{t:"err",msg:"Dieser Platz ist nicht besetzt, da ist niemand verbunden."});
+    }else if(m.t==="reset"&&isHost&&L){
+      // Neue Lobby: alle Spieler raus, neuer Zufallscode
+      const old=L,nc=rc();
+      old.clients.forEach(c=>{send(c,{t:"kicked",closed:1});try{c.close()}catch(x){}});
+      old.clients.clear();old.slots=[];old.host=null;
+      delete lobbies[old.code];
+      L=lobbies[nc]={code:nc,token:old.token,host:ws,S:null,slots:[],clients:new Set()};
+      send(ws,{t:"hosted",code:nc,token:L.token});
     }else if(m.t==="buzz"&&slot&&L&&L.S){
       const S=L.S,o=S.open;
       // Buzzern erst nach einer falschen Antwort, und nur einmal pro Frage und Spieler
