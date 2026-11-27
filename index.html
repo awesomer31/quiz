@@ -199,17 +199,18 @@ var D1=[
 {n:"Zahlen",q:[["Wie viele Spieler stehen pro Team gleichzeitig auf dem Feld beim Fußball?","11"],["Wie viele Sekunden hat ein Tag?","86.400"],["Wie viele Knochen hat ein erwachsener Mensch?","206"],["Was ist die größte dreistellige Primzahl?","997"]]},
 {n:"Logo",q:[[Lq,"Nike",SI+"nike"],[Lq,"Spotify",SI+"spotify"],[Lq,"The North Face",NF],[Lq,"Under Armour",SI+"underarmour"]]}
 ];
+var Mq="",Lh=function(f){return"Ein Lehrer mit den Fächern "+f+". Welcher Lehrer ist das?"};
 var D2=[
-{n:"Essen & Trinken",q:[["Aus welchem Land kommt Sushi ursprünglich?","Japan"],["Welche Frucht ist der Hauptbestandteil von Guacamole?","Avocado"],["Aus welchem Getreide wird Bier hauptsächlich gebraut?","Gerste (als Malz)"],["Aus welcher Pflanze wird Tequila gewonnen?","Blaue Agave"]]},
-{n:"Schule",q:[["Was ist die Hauptstadt von Australien?","Canberra"],["Wie lautet das chemische Symbol für Gold?","Au"],["Wer schrieb „Die Verwandlung“?","Franz Kafka"],["Wie heißt das Element mit der Ordnungszahl 26?","Eisen (Fe)"]]},
-{n:"YouTube-Titel",q:[[yt("Let’s Play Minecraft #049 [Deutsch] [HD] – Höhlentouren & Schollen-Sliding"),"Gronkh"],[yt("ICH STEUER EXSL BEI SEINEM DATE IN CRAFT ATTACK 13"),"LetsHugo"],[yt("😂🤣 Adi FRISST nen BESEN! Ich kanns nicht glauben!🤣REAKTION auf Aditotoro"),"Trymacs"],[yt("Der Mann ist so sauer... (TheBigGreek Tilt Highlight)"),"Papaplatte"]]},
-{n:"Kennzeichen",q:[[kz("M"),"München"],[kz("DD"),"Dresden"],[kz("KS"),"Kassel"],[kz("HRO"),"Rostock"]]},
-{n:"Fußball",q:[["Welches Land gewann die WM 2022 in Katar?","Argentinien"],["Welcher Verein wurde 2023/24 ungeschlagen Deutscher Meister?","Bayer 04 Leverkusen"],["Wer ist Rekordtorschütze der deutschen Männer-Nationalmannschaft?","Miroslav Klose"],["Wer hat die meisten Tore in der Champions League geschossen?","Cristiano Ronaldo"]]}
+{n:"Flaggen",q:[[Fq,"Kolumbien",FL+"co.png"],[Fq,"Sri Lanka",FL+"lk.png"],[Fq,"Kasachstan",FL+"kz.png"],[Fq,"Bhutan",FL+"bt.png"]]},
+{n:"Fußball",q:[["Wie heißt das Stadion von Borussia Dortmund?","Signal Iduna Park"],["Wer schoss im WM-Finale 2014 das Siegtor für Deutschland?","Mario Götze"],["Wer gewann 2024 den Ballon d’Or?","Rodri"],["Wie viele WM-Tore erzielte Miroslav Klose insgesamt?","16"]]},
+{n:"Logo 2",q:[[Lq,"Lacoste",SI+"lacoste"],[Lq,"Converse",SI+"converse"],[Lq,"New Balance",SI+"newbalance"],[Lq,"ASICS",SI+"asics"]]},
+{n:"Morphed",q:[[Mq,"Mika und Faister","/img/morph-200.jpg"],[Mq,"Hasu und PapaP","/img/morph-400.jpg"],[Mq,"Noty und Tim","/img/morph-600.jpg"],[Mq,"Deniz und LetsHugo","/img/morph-1000.jpg"]]},
+{n:"Lehrer",q:[[Lh("Deutsch und Geschichte"),"(Name eintragen)"],[Lh("Chemie und Englisch"),"(Name eintragen)"],[Lh("Geschichte und Englisch"),"(Name eintragen)"],[Lh("Englisch und Sport"),"(Name eintragen)"]]}
 ];
 var DD=[D1,D2];
 function blankQ(){var q=blankQ0();DD.forEach(function(D,r){D.forEach(function(c,ci){c.q.forEach(function(x,qi){q[r][ci][qi]={q:x[0],a:x[1],img:x[2]||""}})})});return q}
 function blankS(){var z=blankS0();DD.forEach(function(D,r){D.forEach(function(c,ci){z.names[r][ci]=c.n})});return z}
-try{Q=JSON.parse(localStorage.getItem(LK+"q"))||blankQ();S=JSON.parse(localStorage.getItem(LK+"s"))||blankS()}catch(e){Q=blankQ();S=blankS()}
+try{Q=JSON.parse(localStorage.getItem(LK+"q"))||blankQ();S=JSON.parse(localStorage.getItem(LK+"s"))||blankS();if(localStorage.getItem(LK+"v")!=="3"){var b2=blankQ(),s2=blankS();Q[1]=b2[1];S.names[1]=s2.names[1];S.used[1]=s2.used[1];localStorage.setItem(LK+"v","3")}}catch(e){Q=blankQ();S=blankS()}
 var board=$("board"),dlg=$("dlg"),camsEl=$("cams"),buzzBtn=$("buzz");
 var kickT,kicked=false,lastH="",pv=null,AC=null,tzT,lastRs=null,tEnd=0;
 var TMH='<div class="tm off" id="tm"><svg viewBox="0 0 100 100"><circle class="trk" cx="50" cy="50" r="44"/><circle class="prg" id="tmc" cx="50" cy="50" r="44" transform="rotate(-90 50 50)"/></svg><b id="tmn"></b><i>🦆</i></div>';

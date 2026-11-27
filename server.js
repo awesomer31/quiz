@@ -1,5 +1,7 @@
 const http=require("http"),fs=require("fs"),path=require("path"),{WebSocketServer}=require("ws");
-const srv=http.createServer((q,r)=>{r.writeHead(200,{"Content-Type":"text/html; charset=utf-8"});r.end(fs.readFileSync(path.join(__dirname,"index.html")))});
+const srv=http.createServer((q,r)=>{
+  if(q.url.startsWith("/img/")){const f=path.join(__dirname,"img",path.basename(q.url.split("?")[0]));fs.readFile(f,(e,d)=>{if(e){r.writeHead(404);r.end();return}r.writeHead(200,{"Content-Type":"image/jpeg","Cache-Control":"public, max-age=86400"});r.end(d)});return}
+  r.writeHead(200,{"Content-Type":"text/html; charset=utf-8"});r.end(fs.readFileSync(path.join(__dirname,"index.html")))});
 const wss=new WebSocketServer({server:srv}),lobbies={};
 const rc=()=>{let c;do{c=Array.from({length:4},()=>"ABCDEFGHJKLMNPQRSTUVWXYZ"[Math.floor(Math.random()*24)]).join("")}while(lobbies[c]);return c};
 const send=(w,o)=>{if(w&&w.readyState===1)w.send(JSON.stringify(o))};
