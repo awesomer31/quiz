@@ -220,7 +220,7 @@ function blankQ(){var q=blankQ0();DD.forEach(function(D,r){D.forEach(function(c,
 function blankS(){var z=blankS0();DD.forEach(function(D,r){D.forEach(function(c,ci){z.names[r][ci]=c.n})});return z}
 try{Q=JSON.parse(localStorage.getItem(LK+"q"))||blankQ();S=JSON.parse(localStorage.getItem(LK+"s"))||blankS()}catch(e){Q=blankQ();S=blankS()}
 // Einmalige Umstellung: Board 2 bekommt die neuen Kategorien, Board 1 (inkl. eigener Änderungen) bleibt
-try{if(localStorage.getItem(LK+"v")!=="2"){var bq=blankQ(),bs=blankS();Q[1]=bq[1];S.names[1]=bs.names[1];S.used[1]=bs.used[1];localStorage.setItem(LK+"v","2")}}catch(e){}
+try{if(localStorage.getItem(LK+"v")!=="3"){var bq=blankQ(),bs=blankS();Q[1]=bq[1];S.names[1]=bs.names[1];S.used[1]=bs.used[1];localStorage.setItem(LK+"q",JSON.stringify(Q));localStorage.setItem(LK+"s",JSON.stringify(S));localStorage.setItem(LK+"v","3")}}catch(e){}
 var board=$("board"),dlg=$("dlg"),camsEl=$("cams"),buzzBtn=$("buzz");
 var AUDH='<div class="aud" id="aud"><div class="eq"><i></i><i></i><i></i><i></i><i></i></div><button data-loc="1">▶ Nochmal anhören</button></div>';
 var AU=new Audio(),curAK=null,apSeen=0;AU.preload="auto";
