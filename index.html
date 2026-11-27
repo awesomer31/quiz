@@ -122,7 +122,7 @@ button.on{background:var(--accent);border-color:var(--accent)}
 .cam{height:clamp(44px,8vh,60px);border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(180,150,255,.35)}
 .cam.active{border-color:#ff4d7a;box-shadow:0 0 14px rgba(255,77,122,.55)}
 .pname{font-size:clamp(12px,1.9vh,17px)}
-.dimg{display:block;margin:0 auto 14px;max-height:30vh;max-width:70%;background:#fff;border-radius:12px;padding:10px}
+.dimg{display:block;margin:0 auto 14px;max-height:36vh;max-width:70%;background:#fff;border-radius:12px;padding:10px}
 /* v3: zentriert, Effekte, Timer */
 body{box-sizing:border-box;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center}
 .tile{transition:transform .15s ease,filter .15s ease,box-shadow .15s ease}
@@ -207,17 +207,20 @@ var D1=[
 {n:"Zahlen",q:[["Wie viele Spieler stehen beim Volleyball pro Team gleichzeitig auf dem Feld?","6"],["Wie viele Zeichen durfte ein Tweet ursprünglich maximal haben?","140"],["In welchem Jahr wurde YouTube gegründet?","2005"],["Wie viele Tasten hat ein Standard-Klavier?","88"]]},
 {n:"Zurück zur Schule",q:[["Was ist die Hauptstadt von Kanada?","Ottawa"],["Welches Gas nehmen Pflanzen bei der Photosynthese auf?","Kohlenstoffdioxid (CO₂)"],["Wie heißt die Zeitform von „Ich hatte gegessen“?","Plusquamperfekt"],["Welches Organ produziert Insulin?","Bauchspeicheldrüse"]]}
 ];
+var MQ="Welche zwei Personen sind hier gemorpht?";
 var D2=[
-{n:"Essen & Trinken",q:[["Aus welchem Land kommt Sushi ursprünglich?","Japan"],["Welche Frucht ist der Hauptbestandteil von Guacamole?","Avocado"],["Aus welchem Getreide wird Bier hauptsächlich gebraut?","Gerste (als Malz)"],["Aus welcher Pflanze wird Tequila gewonnen?","Blaue Agave"]]},
-{n:"Schule",q:[["Was ist die Hauptstadt von Australien?","Canberra"],["Wie lautet das chemische Symbol für Gold?","Au"],["Wer schrieb „Die Verwandlung“?","Franz Kafka"],["Wie heißt das Element mit der Ordnungszahl 26?","Eisen (Fe)"]]},
-{n:"YouTube-Titel",q:[[yt("Let’s Play Minecraft #049 [Deutsch] [HD] – Höhlentouren & Schollen-Sliding"),"Gronkh"],[yt("ICH STEUER EXSL BEI SEINEM DATE IN CRAFT ATTACK 13"),"LetsHugo"],[yt("😂🤣 Adi FRISST nen BESEN! Ich kanns nicht glauben!🤣REAKTION auf Aditotoro"),"Trymacs"],[yt("Der Mann ist so sauer... (TheBigGreek Tilt Highlight)"),"Papaplatte"]]},
-{n:"Kennzeichen",q:[[kz("M"),"München"],[kz("DD"),"Dresden"],[kz("KS"),"Kassel"],[kz("HRO"),"Rostock"]]},
-{n:"Fußball",q:[["Welches Land gewann die WM 2022 in Katar?","Argentinien"],["Welcher Verein wurde 2023/24 ungeschlagen Deutscher Meister?","Bayer 04 Leverkusen"],["Wer ist Rekordtorschütze der deutschen Männer-Nationalmannschaft?","Miroslav Klose"],["Wer hat die meisten Tore in der Champions League geschossen?","Cristiano Ronaldo"]]}
+{n:"Flaggen",q:[[Fq,"Irland",FL+"ie.png"],[Fq,"Slowenien",FL+"si.png"],[Fq,"Bhutan",FL+"bt.png"],[Fq,"Mosambik",FL+"mz.png"]]},
+{n:"Fußball",q:[["Wer schoss das Siegtor im WM-Finale 2014?","Mario Götze"],["Welches Land wurde 2004 überraschend Europameister?","Griechenland"],["Welcher Verein hat den Spitznamen „Die Alte Dame“?","Juventus Turin"],["Wer ist der jüngste WM-Torschütze aller Zeiten?","Pelé"]]},
+{n:"Logo 2",q:[[Lq,"Kick",SI+"kick"],[Lq,"Razer",SI+"razer"],[Lq,"Maserati",SI+"maserati"],[Lq,"Elgato",SI+"elgato"]]},
+{n:"Morphed",q:[[MQ,"Mika und Faister","img/morph-100.jpg"],[MQ,"Hasu und PapaP","img/morph-200.jpg"],[MQ,"Noty und Tim","img/morph-300.jpg"],[MQ,"Deniz und LetsHugo","img/morph-500.jpg"]]},
+{n:"Lehrer",q:[["Ein Lehrer mit den Fächern Deutsch und Geschichte",WA],["Ein Lehrer mit den Fächern Chemie und Englisch",WA],["Ein Lehrer mit den Fächern Geschichte und Englisch",WA],["Ein Lehrer mit den Fächern Englisch und Sport",WA]]}
 ];
 var DD=[D1,D2];
 function blankQ(){var q=blankQ0();DD.forEach(function(D,r){D.forEach(function(c,ci){c.q.forEach(function(x,qi){q[r][ci][qi]={q:x[0],a:x[1],img:x[2]||"",audio:x[3]||""}})})});return q}
 function blankS(){var z=blankS0();DD.forEach(function(D,r){D.forEach(function(c,ci){z.names[r][ci]=c.n})});return z}
 try{Q=JSON.parse(localStorage.getItem(LK+"q"))||blankQ();S=JSON.parse(localStorage.getItem(LK+"s"))||blankS()}catch(e){Q=blankQ();S=blankS()}
+// Einmalige Umstellung: Board 2 bekommt die neuen Kategorien, Board 1 (inkl. eigener Änderungen) bleibt
+try{if(localStorage.getItem(LK+"v")!=="2"){var bq=blankQ(),bs=blankS();Q[1]=bq[1];S.names[1]=bs.names[1];S.used[1]=bs.used[1];localStorage.setItem(LK+"v","2")}}catch(e){}
 var board=$("board"),dlg=$("dlg"),camsEl=$("cams"),buzzBtn=$("buzz");
 var AUDH='<div class="aud" id="aud"><div class="eq"><i></i><i></i><i></i><i></i><i></i></div><button data-loc="1">▶ Nochmal anhören</button></div>';
 var AU=new Audio(),curAK=null,apSeen=0;AU.preload="auto";
