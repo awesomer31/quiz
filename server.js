@@ -1,7 +1,28 @@
 const http=require("http"),fs=require("fs"),path=require("path"),{WebSocketServer}=require("ws");
+const MT={".mp3":"audio/mpeg",".m4a":"audio/mp4",".ogg":"audio/ogg",".wav":"audio/wav",".jpg":"image/jpeg",".jpeg":"image/jpeg",".png":"image/png",".webp":"image/webp",".svg":"image/svg+xml"};
+// Statische Dateien aus /audio und /img (mit Range-Support, damit Audio auch auf iPhone/Safari klappt)
+function serveFile(q,r){
+  const u=decodeURIComponent(q.url.split("?")[0]),dir=u.startsWith("/audio/")?"audio":"img";
+  const f=path.join(__dirname,dir,path.basename(u));
+  fs.stat(f,(e,st)=>{
+    if(e||!st.isFile()){r.writeHead(404);return r.end("nicht gefunden")}
+    const ct=MT[path.extname(f).toLowerCase()]||"application/octet-stream",rg=q.headers.range;
+    if(rg){
+      const m=/bytes=(\d*)-(\d*)/.exec(rg);let a=m&&m[1]?+m[1]:0,b=m&&m[2]?+m[2]:st.size-1;
+      b=Math.min(b,st.size-1);
+      if(a>b){r.writeHead(416,{"Content-Range":"bytes */"+st.size});return r.end()}
+      r.writeHead(206,{"Content-Type":ct,"Accept-Ranges":"bytes","Content-Range":"bytes "+a+"-"+b+"/"+st.size,"Content-Length":b-a+1});
+      fs.createReadStream(f,{start:a,end:b}).pipe(r);
+    }else{
+      r.writeHead(200,{"Content-Type":ct,"Accept-Ranges":"bytes","Content-Length":st.size,"Cache-Control":"public, max-age=3600"});
+      fs.createReadStream(f).pipe(r);
+    }
+  });
+}
 const srv=http.createServer((q,r)=>{
-  if(q.url.startsWith("/img/")){const f=path.join(__dirname,"img",path.basename(q.url.split("?")[0]));fs.readFile(f,(e,d)=>{if(e){r.writeHead(404);r.end();return}r.writeHead(200,{"Content-Type":"image/jpeg","Cache-Control":"public, max-age=86400"});r.end(d)});return}
-  r.writeHead(200,{"Content-Type":"text/html; charset=utf-8"});r.end(fs.readFileSync(path.join(__dirname,"index.html")))});
+  if(q.url.startsWith("/audio/")||q.url.startsWith("/img/"))return serveFile(q,r);
+  r.writeHead(200,{"Content-Type":"text/html; charset=utf-8"});r.end(fs.readFileSync(path.join(__dirname,"index.html")))
+});
 const wss=new WebSocketServer({server:srv}),lobbies={};
 const rc=()=>{let c;do{c=Array.from({length:4},()=>"ABCDEFGHJKLMNPQRSTUVWXYZ"[Math.floor(Math.random()*24)]).join("")}while(lobbies[c]);return c};
 const send=(w,o)=>{if(w&&w.readyState===1)w.send(JSON.stringify(o))};

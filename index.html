@@ -165,6 +165,13 @@ dialog.low{animation:alarm 1s ease-in-out infinite}
 .pt{position:absolute;left:50%;top:50%;font-size:22px;animation:pt .95s ease-out forwards}
 @keyframes pt{from{opacity:1;transform:translate(0,0) scale(.6)}to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.1)}}
 @media (prefers-reduced-motion:reduce){.cam.active,.buzz.ready,.tm.low b,.tm.wait i,dialog.low,.pt{animation:none}}
+.aud{display:flex;flex-direction:column;align-items:center;gap:10px;margin:0 auto 14px}
+.eq{display:flex;align-items:flex-end;gap:6px;height:46px}
+.eq i{display:block;width:8px;height:12px;border-radius:4px;background:rgba(255,255,255,.35);transition:background .2s}
+.aud.on .eq i{background:#5ab4ff;animation:eqb .8s ease-in-out infinite}
+.aud.on .eq i:nth-child(2){animation-delay:.12s}.aud.on .eq i:nth-child(3){animation-delay:.24s}.aud.on .eq i:nth-child(4){animation-delay:.36s}.aud.on .eq i:nth-child(5){animation-delay:.48s}
+@keyframes eqb{0%,100%{height:10px}50%{height:44px}}
+@media (prefers-reduced-motion:reduce){.aud.on .eq i{animation:none;height:30px}}
 </style>
 </head>
 <body>
@@ -181,7 +188,7 @@ dialog.low{animation:alarm 1s ease-in-out infinite}
 <dialog id="dlg"></dialog>
 <div id="join"><div class="jbox"><h2>Quiz beitreten</h2><input id="jc" placeholder="Lobby-Code" maxlength="4"><input id="jn" placeholder="Dein Name" maxlength="14"><button id="jgo" class="on">Beitreten</button><button id="jwatch">Nur zuschauen</button></div></div>
 <script>
-var PTS=[[100,200,300,500],[200,400,600,1000]],LK="gs7",host=false,preview=false,edit=false,db=null,ref=null,ws=null,myslot=0,code="",editing=null,tm,Q,S;
+var PTS=[[100,200,300,500],[200,400,600,1000]],LK="gs8",host=false,preview=false,edit=false,db=null,ref=null,ws=null,myslot=0,code="",editing=null,tm,Q,S;
 function $(i){return document.getElementById(i)}
 function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function five(f){return[0,1,2,3,4].map(f)}
@@ -192,26 +199,31 @@ var ND="M15.816 6.36v3.36h.228a4.847 4.847 0 0 1 4.764 4.764v3.036H24v-3.132c0-4
 var NF="data:image/svg+xml;utf8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="15.6 6 8.5 12.2"><path d="'+ND+'"/></svg>');
 function yt(t){return"Von welchem YouTube-Kanal ist das Video „"+t+"“? (Kanalnamen nennen)"}
 function kz(k){return"Aus welcher deutschen Stadt kommt das Kennzeichen „"+k+"“?"}
+var WQ="Wer spricht da?",WA="Antwort noch eintragen (im Bearbeiten-Modus)";
 var D1=[
-{n:"Flaggen",q:[[Fq,"Spanien",FL+"es.png"],[Fq,"Brasilien",FL+"br.png"],[Fq,"Nepal",FL+"np.png"],[Fq,"Bolivien",FL+"bo.png"]]},
-{n:"Wie viele Follower?",q:[["Wie viele Twitch-Follower hat LetsHugoTV?"+Tq,"ca. 1,16 Mio. (Stand Jan. 2026)"],["Wie viele Twitch-Follower hat Rewinside?"+Tq,"ca. 1,94 Mio."],["Wie viele Twitch-Follower hat Eliasn97?"+Tq,"ca. 2,26 Mio."],["Wie viele Twitch-Follower hat Trymacs?"+Tq,"ca. 3,86 Mio."]]},
-{n:"Bürgerlicher Name",q:[["Wie heißt Papaplatte mit bürgerlichem Namen?","Kevin Teller"],["Wie heißt Knossi mit bürgerlichem Namen?","Jens Knossalla"],["Wie heißt MontanaBlack mit bürgerlichem Namen?","Marcel Eris"],["Wie heißt Gronkh mit bürgerlichem Namen?","Erik Range"]]},
-{n:"Zahlen",q:[["Wie viele Spieler stehen pro Team gleichzeitig auf dem Feld beim Fußball?","11"],["Wie viele Sekunden hat ein Tag?","86.400"],["Wie viele Knochen hat ein erwachsener Mensch?","206"],["Was ist die größte dreistellige Primzahl?","997"]]},
-{n:"Logo",q:[[Lq,"Nike",SI+"nike"],[Lq,"Spotify",SI+"spotify"],[Lq,"The North Face",NF],[Lq,"Under Armour",SI+"underarmour"]]}
+{n:"Wer spricht da",q:[[WQ,WA,"","audio/wer-100.mp3"],[WQ,WA,"","audio/wer-200.mp3"],[WQ,WA,"","audio/wer-300.mp3"],[WQ,WA,"","audio/wer-500.mp3"]]},
+{n:"Wie viele Follower?",q:[["Wie viele Twitch-Follower hat Gronkh?"+Tq,"ca. 1,78 Mio. (Stand Jan. 2026)"],["Wie viele Twitch-Follower hat Knossi?"+Tq,"ca. 2,44 Mio."],["Wie viele Twitch-Follower hat BastiGHG?"+Tq,"ca. 2,36 Mio."],["Wie viele Twitch-Follower hat HandOfBlood?"+Tq,"ca. 1,57 Mio."]]},
+{n:"Logo",q:[[Lq,"Twitch",SI+"twitch"],[Lq,"Puma",SI+"puma"],[Lq,"Fila",SI+"fila"],[Lq,"Koenigsegg",SI+"koenigsegg"]]},
+{n:"Zahlen",q:[["Wie viele Spieler stehen beim Volleyball pro Team gleichzeitig auf dem Feld?","6"],["Wie viele Zeichen durfte ein Tweet ursprünglich maximal haben?","140"],["In welchem Jahr wurde YouTube gegründet?","2005"],["Wie viele Tasten hat ein Standard-Klavier?","88"]]},
+{n:"Zurück zur Schule",q:[["Was ist die Hauptstadt von Kanada?","Ottawa"],["Welches Gas nehmen Pflanzen bei der Photosynthese auf?","Kohlenstoffdioxid (CO₂)"],["Wie heißt die Zeitform von „Ich hatte gegessen“?","Plusquamperfekt"],["Welches Organ produziert Insulin?","Bauchspeicheldrüse"]]}
 ];
-var Mq="",Lh=function(f){return"Ein Lehrer mit den Fächern "+f+". Welcher Lehrer ist das?"};
 var D2=[
-{n:"Flaggen",q:[[Fq,"Kolumbien",FL+"co.png"],[Fq,"Sri Lanka",FL+"lk.png"],[Fq,"Kasachstan",FL+"kz.png"],[Fq,"Bhutan",FL+"bt.png"]]},
-{n:"Fußball",q:[["Wie heißt das Stadion von Borussia Dortmund?","Signal Iduna Park"],["Wer schoss im WM-Finale 2014 das Siegtor für Deutschland?","Mario Götze"],["Wer gewann 2024 den Ballon d’Or?","Rodri"],["Wie viele WM-Tore erzielte Miroslav Klose insgesamt?","16"]]},
-{n:"Logo 2",q:[[Lq,"Lacoste",SI+"lacoste"],[Lq,"Converse",SI+"converse"],[Lq,"New Balance",SI+"newbalance"],[Lq,"ASICS",SI+"asics"]]},
-{n:"Morphed",q:[[Mq,"Mika und Faister","/img/morph-200.jpg"],[Mq,"Hasu und PapaP","/img/morph-400.jpg"],[Mq,"Noty und Tim","/img/morph-600.jpg"],[Mq,"Deniz und LetsHugo","/img/morph-1000.jpg"]]},
-{n:"Lehrer",q:[[Lh("Deutsch und Geschichte"),"(Name eintragen)"],[Lh("Chemie und Englisch"),"(Name eintragen)"],[Lh("Geschichte und Englisch"),"(Name eintragen)"],[Lh("Englisch und Sport"),"(Name eintragen)"]]}
+{n:"Essen & Trinken",q:[["Aus welchem Land kommt Sushi ursprünglich?","Japan"],["Welche Frucht ist der Hauptbestandteil von Guacamole?","Avocado"],["Aus welchem Getreide wird Bier hauptsächlich gebraut?","Gerste (als Malz)"],["Aus welcher Pflanze wird Tequila gewonnen?","Blaue Agave"]]},
+{n:"Schule",q:[["Was ist die Hauptstadt von Australien?","Canberra"],["Wie lautet das chemische Symbol für Gold?","Au"],["Wer schrieb „Die Verwandlung“?","Franz Kafka"],["Wie heißt das Element mit der Ordnungszahl 26?","Eisen (Fe)"]]},
+{n:"YouTube-Titel",q:[[yt("Let’s Play Minecraft #049 [Deutsch] [HD] – Höhlentouren & Schollen-Sliding"),"Gronkh"],[yt("ICH STEUER EXSL BEI SEINEM DATE IN CRAFT ATTACK 13"),"LetsHugo"],[yt("😂🤣 Adi FRISST nen BESEN! Ich kanns nicht glauben!🤣REAKTION auf Aditotoro"),"Trymacs"],[yt("Der Mann ist so sauer... (TheBigGreek Tilt Highlight)"),"Papaplatte"]]},
+{n:"Kennzeichen",q:[[kz("M"),"München"],[kz("DD"),"Dresden"],[kz("KS"),"Kassel"],[kz("HRO"),"Rostock"]]},
+{n:"Fußball",q:[["Welches Land gewann die WM 2022 in Katar?","Argentinien"],["Welcher Verein wurde 2023/24 ungeschlagen Deutscher Meister?","Bayer 04 Leverkusen"],["Wer ist Rekordtorschütze der deutschen Männer-Nationalmannschaft?","Miroslav Klose"],["Wer hat die meisten Tore in der Champions League geschossen?","Cristiano Ronaldo"]]}
 ];
 var DD=[D1,D2];
-function blankQ(){var q=blankQ0();DD.forEach(function(D,r){D.forEach(function(c,ci){c.q.forEach(function(x,qi){q[r][ci][qi]={q:x[0],a:x[1],img:x[2]||""}})})});return q}
+function blankQ(){var q=blankQ0();DD.forEach(function(D,r){D.forEach(function(c,ci){c.q.forEach(function(x,qi){q[r][ci][qi]={q:x[0],a:x[1],img:x[2]||"",audio:x[3]||""}})})});return q}
 function blankS(){var z=blankS0();DD.forEach(function(D,r){D.forEach(function(c,ci){z.names[r][ci]=c.n})});return z}
-try{Q=JSON.parse(localStorage.getItem(LK+"q"))||blankQ();S=JSON.parse(localStorage.getItem(LK+"s"))||blankS();if(localStorage.getItem(LK+"v")!=="3"){var b2=blankQ(),s2=blankS();Q[1]=b2[1];S.names[1]=s2.names[1];S.used[1]=s2.used[1];localStorage.setItem(LK+"v","3")}}catch(e){Q=blankQ();S=blankS()}
+try{Q=JSON.parse(localStorage.getItem(LK+"q"))||blankQ();S=JSON.parse(localStorage.getItem(LK+"s"))||blankS()}catch(e){Q=blankQ();S=blankS()}
 var board=$("board"),dlg=$("dlg"),camsEl=$("cams"),buzzBtn=$("buzz");
+var AUDH='<div class="aud" id="aud"><div class="eq"><i></i><i></i><i></i><i></i><i></i></div><button data-loc="1">▶ Nochmal anhören</button></div>';
+var AU=new Audio(),curAK=null,apSeen=0;AU.preload="auto";
+AU.onplay=AU.onpause=AU.onended=function(){updAud()};
+function updAud(){var e=$("aud");if(e)e.classList.toggle("on",!AU.paused&&!AU.ended)}
+function playAud(){try{AU.currentTime=0;var pr=AU.play();if(pr&&pr.catch)pr.catch(function(){})}catch(e){}}
 var kickT,kicked=false,lastH="",pv=null,AC=null,tzT,lastRs=null,tEnd=0;
 var TMH='<div class="tm off" id="tm"><svg viewBox="0 0 100 100"><circle class="trk" cx="50" cy="50" r="44"/><circle class="prg" id="tmc" cx="50" cy="50" r="44" transform="rotate(-90 50 50)"/></svg><b id="tmn"></b><i>🦆</i></div>';
 var WR=["Autsch! 💥","Daneben! 🙈","Leider nein 😬","Knapp… aber nein 🫠","Uff. 🤦"],RT=["Richtig! 🎉","Sauber! ✨","Stark! 💪","Genau! 🧠","Boom! 🎯"];
@@ -322,42 +334,49 @@ function render(){
 function rdlg(){
   if(editing)return;
   var o=S.open,n=S.announce,c=ctl(),h;
-  if(!o&&n===null){if(dlg.open)dlg.close();dlg.classList.remove("low");lastH="";return}
+  if(!o&&n===null){curAK=null;AU.pause();if(dlg.open)dlg.close();dlg.classList.remove("low");lastH="";return}
   if(n!==null){
     h='<div class="dh">Alle Fragen durch</div><div class="db"><div class="dq">Runde '+(n+1)+'</div><div class="dans">'+PTS[n].join(" · ")+' Punkte</div>'+(c?'<div class="dbtn"><button class="on" data-act="go">Los geht’s</button></div>':'')+'</div>';
   }else{
-    h='<div class="dh">'+esc(o.cat)+' '+o.pts+'</div><div class="db">'+(o.img?'<img class="dimg" src="'+esc(o.img)+'" alt="">':'')+'<div class="qrow"><div class="dq">'+esc(o.q)+'</div>'+TMH+'</div>'+(o.ans?'<div class="dans">'+esc(o.ans)+'</div>':'')+(o.none?'':'<div><span class="dturn">★ '+esc(S.players[S.cur].name)+'’s Turn</span></div>');
-    if(c){var d=o.scored?' disabled':'';h+='<div class="dhost">Antwort (nur du): '+esc(Q[S.round][o.ci][o.qi].a)+'</div><div class="dbtn"><button data-act="ok"'+d+'>Richtig +'+Math.round(o.pts/(o.wrong?2:1))+'</button><button data-act="no"'+d+'>Falsch −'+Math.round(o.pts/2)+'</button><button data-act="show">Antwort zeigen</button><button class="on" data-act="fin">Fertig</button></div>'}h+='</div>';
+    h='<div class="dh">'+esc(o.cat)+' '+o.pts+'</div><div class="db">'+(o.img?'<img class="dimg" src="'+esc(o.img)+'" alt="" onerror="this.outerHTML=\'<div class=dhost>⚠ Bild konnte nicht geladen werden</div>\'">':'')+(o.audio?AUDH:'')+'<div class="qrow"><div class="dq">'+esc(o.q)+'</div>'+TMH+'</div>'+(o.ans?'<div class="dans">'+esc(o.ans)+'</div>':'')+(o.none?'':'<div><span class="dturn">★ '+esc(S.players[S.cur].name)+'’s Turn</span></div>');
+    if(c){var d=o.scored?' disabled':'';h+='<div class="dhost">Antwort (nur du): '+esc(Q[S.round][o.ci][o.qi].a)+'</div><div class="dbtn"><button data-act="ok"'+d+'>Richtig +'+Math.round(o.pts/(o.wrong?2:1))+'</button><button data-act="no"'+d+'>Falsch −'+Math.round(o.pts/2)+'</button><button data-act="show">Antwort zeigen</button>'+(o.audio?'<button data-act="play">▶ Für alle abspielen</button>':'')+'<button class="on" data-act="fin">Fertig</button></div>'}h+='</div>';
   }
   if(!dlg.open||h!==lastH){tz.innerHTML="";dlg.innerHTML=h;dlg.appendChild(tz);lastH=h}
   if(!dlg.open){dlg.showModal();if(dlg.animate)dlg.animate([{opacity:0,transform:"scale(.94)"},{opacity:1,transform:"none"}],{duration:220,easing:"ease-out"})}
   if(o)updTimer(o);else dlg.classList.remove("low");
+  if(o&&o.audio){
+    var ak=S.round+"-"+o.ci+"-"+o.qi;
+    if(curAK!==ak){curAK=ak;AU.src=o.audio;apSeen=0}
+    if((o.ap||0)>apSeen){apSeen=o.ap;playAud()}
+    updAud();
+  }else if(curAK){curAK=null;AU.pause()}
 }
 function act(x,auto){
   var o=S.open,r=S.round;
-  if(x==="esave"){var g=Q[r][editing.ci][editing.qi];g.q=$("eq").value;g.a=$("ea").value;g.img=$("ei").value.trim();editing=null;commit();return}
+  if(x==="esave"){var g=Q[r][editing.ci][editing.qi];g.q=$("eq").value;g.a=$("ea").value;g.img=$("ei").value.trim();g.audio=$("eu").value.trim();editing=null;commit();return}
   if(x==="ecancel"){editing=null;render();return}
   if(x==="go"){S.round=S.announce;S.announce=null}
   else if(o){
     if(x==="show"){o.ans=Q[r][o.ci][o.qi].a;o.run=0}
+    if(x==="play")o.ap=(o.ap||0)+1;
     if(x==="ok"&&!o.scored){S.players[S.cur].score+=Math.round(o.pts/(o.wrong?2:1));o.scored=1;o.run=0}
     if(x==="no"&&!o.scored){S.players[S.cur].score-=Math.round(o.pts/2);o.wrong=1;o.none=1;S.buzzed=false;o.run=0;o.t=0;o.to=auto?1:0;o.wc=(o.wc||0)+1;o.tried=o.tried||[];if(o.tried.indexOf(S.cur)<0)o.tried.push(S.cur)}
     if(x==="fin"){S.used[r][o.ci][o.qi]=1;S.open=null;S.buzzed=false;S.cur=(o.start||1)%(S.np||4)+1;if(r<PTS.length-1&&S.used[r].every(function(c){return c.every(Boolean)}))S.announce=r+1}
   }
   commit();
 }
-dlg.addEventListener("click",function(e){var b=e.target.closest("[data-act]");if(b&&ctl())act(b.dataset.act)});
+dlg.addEventListener("click",function(e){if(e.target.closest("[data-loc]")){playAud();return}var b=e.target.closest("[data-act]");if(b&&ctl())act(b.dataset.act)});
 dlg.addEventListener("cancel",function(e){e.preventDefault()});
 board.addEventListener("click",function(e){
   var t=e.target.closest(".tile");if(!t||!ctl())return;
   var ci=+t.dataset.ci,qi=+t.dataset.qi,r=S.round,g=Q[r][ci][qi];
   if(edit){
     editing={ci:ci,qi:qi};
-    dlg.innerHTML='<div class="db" style="text-align:left"><div class="meta">'+esc(S.names[r][ci])+' · '+PTS[r][qi]+'</div><label>Frage</label><textarea id="eq" rows="3">'+esc(g.q)+'</textarea><label>Antwort</label><textarea id="ea" rows="2">'+esc(g.a)+'</textarea><label>Bild-Link (optional)</label><input id="ei" style="width:100%;box-sizing:border-box" value="'+esc(g.img||"")+'"><div class="row"><button data-act="ecancel">Abbrechen</button><button class="on" data-act="esave">Speichern</button></div></div>';
+    dlg.innerHTML='<div class="db" style="text-align:left"><div class="meta">'+esc(S.names[r][ci])+' · '+PTS[r][qi]+'</div><label>Frage</label><textarea id="eq" rows="3">'+esc(g.q)+'</textarea><label>Antwort</label><textarea id="ea" rows="2">'+esc(g.a)+'</textarea><label>Bild-Link (optional)</label><input id="ei" style="width:100%;box-sizing:border-box" value="'+esc(g.img||"")+'"><label>Audio-Link (optional, z. B. audio/wer-100.mp3)</label><input id="eu" style="width:100%;box-sizing:border-box" value="'+esc(g.audio||"")+'"><div class="row"><button data-act="ecancel">Abbrechen</button><button class="on" data-act="esave">Speichern</button></div></div>';
     dlg.showModal();return;
   }
   if(S.used[r][ci][qi]||S.open||S.announce!==null)return;
-  S.open={ci:ci,qi:qi,cat:S.names[r][ci],pts:PTS[r][qi],q:g.q,img:g.img||"",ans:null,scored:0,start:S.cur,tried:[],wc:0,to:0,run:1,t:15,tt:15,rs:1};commit();
+  S.open={ci:ci,qi:qi,cat:S.names[r][ci],pts:PTS[r][qi],q:g.q,img:g.img||"",audio:g.audio||"",ap:g.audio?1:0,ans:null,scored:0,start:S.cur,tried:[],wc:0,to:0,run:1,t:15,tt:15,rs:1};commit();
 });
 board.addEventListener("input",function(e){if(e.target.dataset.ci!==undefined&&ctl()){S.names[S.round][e.target.dataset.ci]=e.target.value;commit(true)}});
 camsEl.addEventListener("input",function(e){
